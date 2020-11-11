@@ -98,10 +98,21 @@ class WebserviceController extends FrontendController
         $queryType = new QueryType($service, $localeService, $modelFactory, $this->eventDispatcher, [], $context);
         $mutationType = new MutationType($service, $localeService, $modelFactory, $this->eventDispatcher, [], $context);
 
+        $extraTypes = [];
+        foreach ($queryType->config['fields'] as $field) {
+            $types = $field['type']->config['types'];
+            if ($types) {
+                $extraTypes = array_merge($extraTypes, $types);
+            }
+        }
+
         try {
             $schemaConfig = [
                 'query' => $queryType
             ];
+            if ($extraTypes) {
+                $schemaConfig['types'] = $extraTypes;
+            }
             if (!$mutationType->isEmpty()) {
                 $schemaConfig['mutation'] = $mutationType;
             }
